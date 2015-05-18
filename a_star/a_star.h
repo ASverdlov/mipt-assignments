@@ -41,7 +41,6 @@ public:
     std::vector<EMove> solve(Grid startGrid, bool debug = false, int depthLimit = 60);
     void setEstimator(DistanceEstimator estimate);
 
-
 private:
     void relaxState(const Grid& grid, int newDist, Movement newMove, int newDepth);
     void traverseNeighbours(OrderedState& v);
