@@ -14,7 +14,7 @@
 #include "distance_estimators.h"
 
 enum class EMove {
-        RIGHT, DOWN, LEFT, UP
+    RIGHT, DOWN, LEFT, UP
 };
 
 // This array holds directions info
@@ -32,6 +32,8 @@ struct OrderedState
     Grid grid;
     int depth;
 };
+
+bool operator<(const OrderedState& lhs, const OrderedState& rhs);
 
 class Solver
 {
@@ -55,4 +57,7 @@ private:
     std::map<Grid, Movement> lastMove_;
     std::priority_queue<OrderedState> stQueue_;
 };
+
+std::ostream& operator<<(std::ostream& out, const std::vector<EMove>& path);
+
 #endif

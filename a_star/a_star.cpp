@@ -1,10 +1,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <cassert>
-#include <algorithm>
 
 #include <vector>
-#include <map>
 #include <queue>
 
 #include "grid.h"
@@ -14,7 +12,6 @@ using std::vector;
 using std::cin;
 using std::cout;
 using std::cerr;
-using std::map;
 using std::priority_queue;
 using std::ostream;
 
@@ -160,76 +157,3 @@ ostream& operator<<(ostream& out, const vector<EMove>& path)
     return out;
 }
 
-static bool isSolvable(const Grid& grid)
-{
-    int inversions = 0;
-    size_t size = grid.size() * grid.size();
-
-    bool blankOnOddRowFromBottom;
-
-    for (int linearPos1 = 0; linearPos1 < size; ++linearPos1) {
-        int x1 = linearPos1 / static_cast<int>(grid.size());
-        int y1 = linearPos1 % static_cast<int>(grid.size());
-        int value1 = grid.at(x1, y1);
-
-        if (value1 == 0) {
-            blankOnOddRowFromBottom = (x1 % 2 != 1);
-        }
-
-        for (int linearPos2 = linearPos1 + 1; linearPos2 < size; ++linearPos2) {
-            int x2 = linearPos2 / static_cast<int>(grid.size());
-            int y2 = linearPos2 / static_cast<int>(grid.size());
-            int value2 = grid.at(x2, y2);
-
-            bool isInversion = false;
-            if (grid.at(x1, y1) > 0 && grid.at(x2, y2) > 0) {
-                isInversion = (value1 > value2);
-            } else {
-                isInversion = (value1 == 0);
-            }
-            inversions += isInversion;
-        }
-    }
-
-    bool inversionsEven = (inversions % 2 == 0);
-    return (blankOnOddRowFromBottom == inversionsEven);
-}
-
-int main()
-{
-    freopen("input.txt", "r", stdin);
-    //freopen("output.txt", "w", stdout);
-
-    DEFunctionHolder distEstimators[1] = {
-        {manhattanLCDistanceEstimator, "Manhattan + L or C"}
-    };
-
-    Solver solver;
-
-    int T; cin >> T;
-    for (int test = 1; test <= T; ++test) {
-        Grid grid;
-        cin >> grid;
-        cout << grid;
-        
-        std::cout << "Test: " << test << ":\n";
-
-        if (!isSolvable(grid)) {
-            cout << "This puzzle is not solvable.\n";
-            continue;
-        }
-
-        for (const auto& estimatorHolder : distEstimators) {
-            clock_t startTime = clock();
-
-            solver.setEstimator(estimatorHolder.function);
-
-            vector<EMove> ans = solver.solve(grid, false);
-
-            double elapsedTime = static_cast<double>(clock() - startTime) / CLOCKS_PER_SEC;
-            std::cout << "\tWith estimator: " << estimatorHolder.name << ", time: " << elapsedTime
-                      << ", answer: " << ans << '\n';
-        }
-    }
-    return 0;
-}

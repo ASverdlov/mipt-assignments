@@ -1,5 +1,6 @@
 #ifndef _GRID_H_
 #define _GRID_H_
+
 #include <iostream>
 #include <cstdlib>
 #include <cassert>
@@ -55,4 +56,7 @@ private:
     bool isValidPosition(int x, int y) const;
     void findEmptyCell();
 };
+
+bool isSolvable(const Grid& grid);
+
 #endif

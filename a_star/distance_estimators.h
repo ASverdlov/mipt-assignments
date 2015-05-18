@@ -1,5 +1,6 @@
 #ifndef _DISTANCE_ESTIMATOR_
 #define _DISTANCE_ESTIMATOR_
+
 #include <cstdlib>
 #include <cassert>
 #include <functional>
@@ -22,6 +23,5 @@ struct DEFunctionHolder
     DistanceEstimator function;
     std::string name;
 };
-
 
 #endif
