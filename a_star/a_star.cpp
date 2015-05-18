@@ -60,7 +60,7 @@ vector<EMove> Solver::restorePath()
     return path;
 }
 
-void Solver::relaxState(const Grid& grid, int newDist, Movement newMove, int newDepth)
+inline void Solver::relaxState(const Grid& grid, int newDist, Movement newMove, int newDepth)
 {
     bool notVisited = !dist_.count(grid);
     bool betterDist = (newDist < dist_[grid]);
@@ -73,10 +73,11 @@ void Solver::relaxState(const Grid& grid, int newDist, Movement newMove, int new
     }
 }
 
-void Solver::traverseNeighbours(OrderedState& v)
+inline void Solver::traverseNeighbours(OrderedState& v)
 {
     // reuse existing state
-    Grid grid = v.grid;
+
+    Grid& grid = v.grid;
 
     for (auto& movement : movements) {
         bool hasMoved = grid.tryMove(movement.deltaX, movement.deltaY);

@@ -9,16 +9,32 @@ int defaultDistanceEstimator(const Grid& grid)
     return manhattanDistanceEstimator(grid);
 }
 
-int manhattanLCDistanceEstimator(const Grid& grid)
+int manhattanLOrCDistanceEstimator(const Grid& grid)
 {
     int distance = 0;
     for (size_t x = 0; x < grid.size(); ++x) {
         for (size_t y = 0; y < grid.size(); ++y) {
             if (grid.at(x, y)) {
-                int supposedX = grid.at(x, y) / static_cast<int>(grid.size());
-                int supposedY = grid.at(x, y) % static_cast<int>(grid.size());
+                int supposedX = (grid.at(x, y) - 1) / static_cast<int>(grid.size());
+                int supposedY = (grid.at(x, y) - 1) % static_cast<int>(grid.size());
                 distance += abs(supposedX - x) + abs(supposedY - y);
                 distance += (supposedX != static_cast<int>(x) || supposedY != static_cast<int>(y));
+            }
+        }
+    }
+    return distance;
+}
+
+int manhattanLAndCDistanceEstimator(const Grid& grid)
+{
+    int distance = 0;
+    for (size_t x = 0; x < grid.size(); ++x) {
+        for (size_t y = 0; y < grid.size(); ++y) {
+            if (grid.at(x, y)) {
+                int supposedX = (grid.at(x, y) - 1) / static_cast<int>(grid.size());
+                int supposedY = (grid.at(x, y) - 1) % static_cast<int>(grid.size());
+                distance += abs(supposedX - x) + abs(supposedY - y);
+                distance += (supposedX != static_cast<int>(x) && supposedY != static_cast<int>(y));
             }
         }
     }
@@ -31,8 +47,8 @@ int manhattanDistanceEstimator(const Grid& grid)
     for (size_t x = 0; x < grid.size(); ++x) {
         for (size_t y = 0; y < grid.size(); ++y) {
             if (grid.at(x, y)) {
-                int supposedX = grid.at(x, y) / static_cast<int>(grid.size());
-                int supposedY = grid.at(x, y) % static_cast<int>(grid.size());
+                int supposedX = (grid.at(x, y) - 1) / static_cast<int>(grid.size());
+                int supposedY = (grid.at(x, y) - 1) % static_cast<int>(grid.size());
                 distance += abs(supposedX - x) + abs(supposedY - y);
             }
         }

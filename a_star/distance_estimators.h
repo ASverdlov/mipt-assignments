@@ -14,7 +14,8 @@
 typedef std::function<int (const Grid&)> DistanceEstimator;
 
 int defaultDistanceEstimator(const Grid& grid);
-int manhattanLCDistanceEstimator(const Grid& grid);
+int manhattanLAndCDistanceEstimator(const Grid& grid);
+int manhattanLOrCDistanceEstimator(const Grid& grid);
 int manhattanDistanceEstimator(const Grid& grid);
 int dijkstraDistanceEstimator(const Grid& grid);
 

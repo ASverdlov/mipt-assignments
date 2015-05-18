@@ -9,8 +9,10 @@ using std::cin;
 using std::cout;
 using std::vector;
 
-static DEFunctionHolder distEstimators[1] = {
-    {manhattanLCDistanceEstimator, "Manhattan + L or C"}
+static DEFunctionHolder distEstimators[] = {
+    {manhattanLAndCDistanceEstimator, "Manhattan + L & C"},
+    {manhattanLOrCDistanceEstimator, "Manhattan + L | C"},
+    //{manhattanDistanceEstimator, "Manhattan"}
 };
 
 int main()
@@ -22,26 +24,27 @@ int main()
 
     int T; cin >> T;
     for (int test = 1; test <= T; ++test) {
+        cout << "\n\n--------------- Test: " << test << " -------------------------------\n";
+
         Grid grid;
         cin >> grid;
         cout << grid;
         
-        cout << "Test: " << test << ":\n";
         if (!isSolvable(grid)) {
-            cout << "This puzzle is not solvable.\n";
+            cout << "\nThis puzzle is not solvable.";
             continue;
         }
 
         for (const auto& estimatorHolder : distEstimators) {
-            clock_t startTime = clock();
-
             solver.setEstimator(estimatorHolder.function);
 
-            vector<EMove> ans = solver.solve(grid, false);
+            cout << "\nEstimator started: " << estimatorHolder.name;
 
+            clock_t startTime = clock();
+            vector<EMove> ans = solver.solve(grid, false, 1000);
             double elapsedTime = static_cast<double>(clock() - startTime) / CLOCKS_PER_SEC;
-            cout << "\tWith estimator: " << estimatorHolder.name << ", time: " << elapsedTime
-                      << ", answer: " << ans << '\n';
+
+            cout << "\nTime: " << elapsedTime << "\nAnswer: " << ans << "\n";
         }
     }
     return 0;
