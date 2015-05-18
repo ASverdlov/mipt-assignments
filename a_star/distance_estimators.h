@@ -19,8 +19,8 @@ int dijkstraDistanceEstimator(const Grid& grid);
 
 struct DEFunctionHolder
 {
-	DistanceEstimator function;
-	std::string name;
+    DistanceEstimator function;
+    std::string name;
 };
 
 
