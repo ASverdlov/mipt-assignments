@@ -1,3 +1,4 @@
+#include <cmath>
 #include <iostream>
 #include <cstdlib>
 #include <cassert>
@@ -13,6 +14,20 @@ using std::ostream;
 using std::istream;
 using std::vector;
 using std::swap;
+
+Grid::Grid()
+{}
+
+Grid::Grid(const vector<int>& grid)
+    : grid_(grid)
+{
+    size_ = sqrt(grid.size());
+
+    // how ugly is that
+    assert(size_ * size_ == grid.size());
+
+    findEmptyCell();
+}
 
 size_t Grid::size() const
 {
@@ -34,11 +49,13 @@ bool Grid::operator<(const Grid& rhs) const
 
 int& Grid::at(size_t i, size_t j)
 {
+    assert(i * size() + j < grid_.size());
     return grid_[i * size() + j];
 }
 
 const int& Grid::at(size_t i, size_t j) const
 {
+    assert(i * size() + j < grid_.size());
     return grid_[i * size() + j];
 }
 

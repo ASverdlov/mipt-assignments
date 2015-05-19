@@ -25,7 +25,7 @@ Movement movements[] {
 };
 
 void Solver::debugState(const Grid& grid) {
-    cerr << "Estimated: " << estimate(grid) << '\n';
+    cerr << "Estimated: " << estimate(grid, supposedX_, supposedY_) << '\n';
     cerr << "From start: " << dist_[grid] << '\n';
     cerr << '\n';
 }
@@ -55,7 +55,8 @@ inline void Solver::relaxState(const Grid& grid, int newDist, Movement newMove, 
     bool betterDist = (newDist < dist_[grid]);
     if (notVisited || betterDist) {
         if (!notVisited) {
-            auto it = stQueue_.lower_bound({dist_[grid], estimate(grid), grid, -1});
+            // delete old data
+            auto it = stQueue_.lower_bound({dist_[grid], estimate(grid, supposedX_, supposedY_), grid, -1});
             assert(it != stQueue_.end());
             stQueue_.erase(it);
         }
@@ -63,15 +64,14 @@ inline void Solver::relaxState(const Grid& grid, int newDist, Movement newMove, 
         lastMove_[grid] = newMove;
         dist_[grid] = newDist;
 
-        stQueue_.insert({dist_[grid], estimate(grid), grid, newDepth});
+        // insert new data
+        stQueue_.insert({dist_[grid], estimate(grid, supposedX_, supposedY_), grid, newDepth});
     }
 }
 
 inline void Solver::traverseNeighbours(OrderedState& v)
 {
-    // reuse existing state
-
-    Grid& grid = v.grid;
+    Grid grid = v.grid;
 
     for (auto& movement : movements) {
         bool hasMoved = grid.tryMove(movement.deltaX, movement.deltaY);
@@ -87,11 +87,30 @@ inline void Solver::traverseNeighbours(OrderedState& v)
     }
 }
 
-vector<EMove> Solver::solve(Grid startGrid, bool debug, int depthLimit)
+void Solver::prepare(Grid endGrid)
 {
+    // clear containers
     dist_.clear();
     lastMove_.clear();
     stQueue_ = set<OrderedState>();
+
+    // set new goal
+    canonical_ = endGrid;
+
+    // calc places of values in canonical
+    supposedX_.assign(endGrid.size() * endGrid.size(), 0);
+    supposedY_.assign(endGrid.size() * endGrid.size(), 0);
+    for (size_t i = 0; i < endGrid.size(); ++i) {
+        for (size_t j = 0; j < endGrid.size(); ++j) {
+            supposedX_[endGrid.at(i, j)] = i;
+            supposedY_[endGrid.at(i, j)] = j;
+        }
+    }
+}
+
+vector<EMove> Solver::solve(Grid startGrid, Grid endGrid, bool debug, int depthLimit)
+{
+    prepare(endGrid);
 
     // push start (direction doesn't matter)
     relaxState(startGrid, 0, movements[0], 0);
@@ -102,20 +121,14 @@ vector<EMove> Solver::solve(Grid startGrid, bool debug, int depthLimit)
         OrderedState v = *stQueue_.begin();
         stQueue_.erase(stQueue_.begin());
 
-        // priority_queue doesn't provide any delete function
-        // so instead of deleting here we check if v contains shortest distance
-        // gained so far
-
-        bool isActualDistance = (dist_[v.grid] == v.distFromStart);
         bool hasReachedDepthLimit = (v.depth >= depthLimit);
-        bool hasReachedGoal = (estimate(v.grid) == 0);
+        bool hasReachedGoal = (estimate(v.grid, supposedX_, supposedY_) == 0);
 
-        if (!isActualDistance || hasReachedDepthLimit) {
-            continue;
-        }
         if (hasReachedGoal) {
-            canonical_ = v.grid;
             break;
+        }
+        if (hasReachedDepthLimit) {
+            continue;
         }
 
         if (debug && !(timer & 4095)) {

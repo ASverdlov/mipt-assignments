@@ -12,31 +12,35 @@
 class Grid
 {
 public:
+
+    Grid();
+    Grid(const std::vector<int>& grid);
+
     // compare by distance_ value
     bool operator<(const Grid& rhs) const;
 
-    friend std::ostream& operator<<(std::ostream& out, const Grid& rhs)
+    friend std::ostream& operator<<(std::ostream& out, const Grid& grid)
     {
         out << "Grid\n";
-        for (size_t x = 0; x < rhs.size(); ++x) {
-            for (size_t y = 0; y < rhs.size(); ++y) {
-                out << rhs.at(x, y) << " \n"[y + 1 == rhs.size()];
+        for (size_t x = 0; x < grid.size(); ++x) {
+            for (size_t y = 0; y < grid.size(); ++y) {
+                out << grid.at(x, y) << " \n"[y + 1 == grid.size()];
             }
         }
         out << '\n';
         return out;
     }
 
-    friend std::istream& operator>>(std::istream& in, Grid& rhs)
+    friend std::istream& operator>>(std::istream& in, Grid& grid)
     {
-        rhs.size_ = 4;
-        rhs.grid_ = std::vector<int>(rhs.size() * rhs.size(), 0);
-        for (size_t x = 0; x < rhs.size(); ++x) {
-            for (size_t y = 0; y < rhs.size(); ++y) {
-                in >> rhs.at(x, y);
+        grid.size_ = 4;
+        grid.grid_ = std::vector<int>(grid.size() * grid.size(), 0);
+        for (size_t x = 0; x < grid.size(); ++x) {
+            for (size_t y = 0; y < grid.size(); ++y) {
+                in >> grid.at(x, y);
             }
         }
-        rhs.findEmptyCell();
+        grid.findEmptyCell();
         return in;
     }
 

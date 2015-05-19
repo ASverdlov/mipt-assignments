@@ -11,13 +11,20 @@
 #include "grid.h"
 
 // type of estimate() function
-typedef std::function<int (const Grid&)> DistanceEstimator;
+typedef std::function<int (const Grid&, const std::vector<int>&, const std::vector<int>&)> DistanceEstimator;
 
-int defaultDistanceEstimator(const Grid& grid);
-int manhattanLAndCDistanceEstimator(const Grid& grid);
-int manhattanLOrCDistanceEstimator(const Grid& grid);
-int manhattanDistanceEstimator(const Grid& grid);
-int dijkstraDistanceEstimator(const Grid& grid);
+int manhattanLAndCDistanceEstimator(const Grid& grid,
+                                    const std::vector<int>& supposedX,
+                                    const std::vector<int>& supposedY
+                                    );
+int manhattanLOrCDistanceEstimator(const Grid& grid,
+                                   const std::vector<int>& supposedX,
+                                   const std::vector<int>& supposedY
+                                   );
+int manhattanDistanceEstimator(const Grid& grid,
+                               const std::vector<int>& supposedX,
+                               const std::vector<int>& supposedY
+                               );
 
 struct DEFunctionHolder
 {
