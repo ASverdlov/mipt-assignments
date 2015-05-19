@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <map>
+#include <set>
 #include <queue>
 
 #include "grid.h"
@@ -33,8 +34,6 @@ struct OrderedState
     int depth;
 };
 
-bool operator<(const OrderedState& lhs, const OrderedState& rhs);
-
 class Solver
 {
 public:
@@ -54,9 +53,11 @@ private:
 
     std::map<Grid, int> dist_;
     std::map<Grid, Movement> lastMove_;
-    std::priority_queue<OrderedState> stQueue_;
+    std::set<OrderedState> stQueue_;
 };
 
 std::ostream& operator<<(std::ostream& out, const std::vector<EMove>& path);
+
+bool operator<(const OrderedState& lhs, const OrderedState& rhs);
 
 #endif

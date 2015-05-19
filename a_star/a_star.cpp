@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cassert>
 
+#include <set>
 #include <vector>
 #include <queue>
 
@@ -9,6 +10,7 @@
 #include "a_star.h"
 
 using std::vector;
+using std::set;
 using std::cin;
 using std::cout;
 using std::cerr;
@@ -21,19 +23,6 @@ Movement movements[] {
     {0, -1, EMove::LEFT},
     {-1, 0, EMove::UP}
 };
-
-// compare by "bigger", because priority_queue sorts by "bigger"
-// and we want to sort by "less"
-bool operator<(const OrderedState& lhs, const OrderedState& rhs) {
-    // this compares distances as
-    // distance from start + heuristic distance to end
-    int heuristicDistanceLhs = lhs.distFromStart + lhs.distToEnd;
-    int heuristicDistanceRhs = rhs.distFromStart + rhs.distToEnd;
-    if (heuristicDistanceLhs != heuristicDistanceRhs) {
-        return heuristicDistanceLhs > heuristicDistanceRhs;
-    }
-    return lhs.grid < rhs.grid;
-}
 
 void Solver::debugState(const Grid& grid) {
     cerr << "Estimated: " << estimate(grid) << '\n';
@@ -65,11 +54,16 @@ inline void Solver::relaxState(const Grid& grid, int newDist, Movement newMove, 
     bool notVisited = !dist_.count(grid);
     bool betterDist = (newDist < dist_[grid]);
     if (notVisited || betterDist) {
+        if (!notVisited) {
+            auto it = stQueue_.lower_bound({dist_[grid], estimate(grid), grid, -1});
+            assert(it != stQueue_.end());
+            stQueue_.erase(it);
+        }
+
         lastMove_[grid] = newMove;
         dist_[grid] = newDist;
 
-        // NOTE: we don't delete old state from heap
-        stQueue_.push({dist_[grid], estimate(grid), grid, newDepth});
+        stQueue_.insert({dist_[grid], estimate(grid), grid, newDepth});
     }
 }
 
@@ -97,7 +91,7 @@ vector<EMove> Solver::solve(Grid startGrid, bool debug, int depthLimit)
 {
     dist_.clear();
     lastMove_.clear();
-    stQueue_ = priority_queue<OrderedState>();
+    stQueue_ = set<OrderedState>();
 
     // push start (direction doesn't matter)
     relaxState(startGrid, 0, movements[0], 0);
@@ -105,8 +99,8 @@ vector<EMove> Solver::solve(Grid startGrid, bool debug, int depthLimit)
     int timer = 0;
     while (!stQueue_.empty()) {
         ++timer;
-        OrderedState v = stQueue_.top();
-        stQueue_.pop();
+        OrderedState v = *stQueue_.begin();
+        stQueue_.erase(stQueue_.begin());
 
         // priority_queue doesn't provide any delete function
         // so instead of deleting here we check if v contains shortest distance
@@ -139,6 +133,20 @@ void Solver::setEstimator(DistanceEstimator estimate)
 {
     this->estimate = estimate;
 }
+
+// compare by "bigger", because priority_queue sorts by "bigger"
+// and we want to sort by "less"
+bool operator<(const OrderedState& lhs, const OrderedState& rhs) {
+    // this compares distances as
+    // distance from start + heuristic distance to end
+    int heuristicDistanceLhs = lhs.distFromStart + lhs.distToEnd;
+    int heuristicDistanceRhs = rhs.distFromStart + rhs.distToEnd;
+    if (heuristicDistanceLhs != heuristicDistanceRhs) {
+        return heuristicDistanceLhs < heuristicDistanceRhs;
+    }
+    return lhs.grid < rhs.grid;
+}
+
 
 ostream& operator<<(ostream& out, const vector<EMove>& path)
 {

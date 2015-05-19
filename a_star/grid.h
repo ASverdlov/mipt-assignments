@@ -17,21 +17,23 @@ public:
 
     friend std::ostream& operator<<(std::ostream& out, const Grid& rhs)
     {
-        out << "Grid print:\n";
-        for (size_t x = 0; x < rhs.grid_.size(); ++x) {
-            for (size_t y = 0; y < rhs.grid_.size(); ++y) {
-                out << rhs.grid_[x][y] << " \n"[y + 1 == rhs.grid_.size()];
+        out << "Grid\n";
+        for (size_t x = 0; x < rhs.size(); ++x) {
+            for (size_t y = 0; y < rhs.size(); ++y) {
+                out << rhs.at(x, y) << " \n"[y + 1 == rhs.size()];
             }
         }
+        out << '\n';
         return out;
     }
 
     friend std::istream& operator>>(std::istream& in, Grid& rhs)
     {
-        rhs.grid_ = std::vector<std::vector<int>>(4, std::vector<int>(4, 0));
-        for (size_t x = 0; x < 4; ++x) {
-            for (size_t y = 0; y < 4; ++y) {
-                in >> rhs.grid_[x][y];
+        rhs.size_ = 4;
+        rhs.grid_ = std::vector<int>(rhs.size() * rhs.size(), 0);
+        for (size_t x = 0; x < rhs.size(); ++x) {
+            for (size_t y = 0; y < rhs.size(); ++y) {
+                in >> rhs.at(x, y);
             }
         }
         rhs.findEmptyCell();
@@ -47,11 +49,13 @@ public:
 
 private:
     // internal representation of grid as 2D matrix
-    std::vector<std::vector<int>> grid_;
+    std::vector<int> grid_;
 
     // position of 0-cell
     int emptyCellX_;
     int emptyCellY_;
+
+    size_t size_;
 
     bool isValidPosition(int x, int y) const;
     void findEmptyCell();

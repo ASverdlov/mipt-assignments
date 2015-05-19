@@ -33,6 +33,8 @@ int main()
         if (!isSolvable(grid)) {
             cout << "\nThis puzzle is not solvable.";
             continue;
+        } else {
+            cout << "\nThis puzzle is solvable.";
         }
 
         for (const auto& estimatorHolder : distEstimators) {

@@ -16,13 +16,13 @@ using std::swap;
 
 size_t Grid::size() const
 {
-    return grid_.size();
+    return size_;
 }
 
 bool Grid::isValidPosition(int x, int y) const
 {
-    return 0 <= x && x < static_cast<int>(grid_.size()) && 
-           0 <= y && y < static_cast<int>(grid_.size());
+    return 0 <= x && x < static_cast<int>(size()) && 
+           0 <= y && y < static_cast<int>(size());
 }
 
 bool Grid::operator<(const Grid& rhs) const
@@ -34,18 +34,18 @@ bool Grid::operator<(const Grid& rhs) const
 
 int& Grid::at(size_t i, size_t j)
 {
-    return grid_[i][j];
+    return grid_[i * size() + j];
 }
 
 const int& Grid::at(size_t i, size_t j) const
 {
-    return grid_[i][j];
+    return grid_[i * size() + j];
 }
 
 void Grid::findEmptyCell()
 {
-    for (size_t x = 0; x < grid_.size(); ++x) {
-        for (size_t y = 0; y < grid_.size(); ++y) {
+    for (size_t x = 0; x < size(); ++x) {
+        for (size_t y = 0; y < size(); ++y) {
             if (at(x, y) == 0) {
                 emptyCellX_ = x;
                 emptyCellY_ = y;
