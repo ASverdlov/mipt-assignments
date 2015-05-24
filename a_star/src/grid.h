@@ -46,6 +46,11 @@ public:
 
     size_t size() const;
 
+    // linear position
+    int& at(size_t idx);
+    const int& at(size_t idx) const;
+
+    // 2-D position
     int& at(size_t i, size_t j);
     const int& at(size_t i, size_t j) const;
 
@@ -65,6 +70,5 @@ private:
     void findEmptyCell();
 };
 
-bool isSolvable(const Grid& grid);
 
 #endif

@@ -7,7 +7,7 @@
 #include <queue>
 
 #include "grid.h"
-#include "a_star.h"
+#include "solver.h"
 
 using std::vector;
 using std::set;
@@ -30,14 +30,14 @@ void Solver::debugState(const Grid& grid) {
     cerr << '\n';
 }
 
-vector<EMove> Solver::restorePath()
+vector<Movement> Solver::restorePath()
 {
     // restore the path from end to start
     Grid v = canonical_;
 
-    vector<EMove> path;
+    vector<Movement> path;
     while (dist_[v]) {
-        path.push_back(lastMove_[v].direction);
+        path.push_back(lastMove_[v]);
 
         bool hasMoved = v.tryMove(-lastMove_[v].deltaX, -lastMove_[v].deltaY); // move back
         assert(hasMoved); // back-route should be valid
@@ -108,7 +108,7 @@ void Solver::prepare(Grid endGrid)
     }
 }
 
-vector<EMove> Solver::solve(Grid startGrid, Grid endGrid, bool debug, int depthLimit)
+vector<Movement> Solver::solve(Grid startGrid, Grid endGrid, bool debug, int depthLimit)
 {
     prepare(endGrid);
 
@@ -147,11 +147,38 @@ void Solver::setEstimator(DistanceEstimator estimate)
     this->estimate = estimate;
 }
 
-// compare by "bigger", because priority_queue sorts by "bigger"
-// and we want to sort by "less"
+// NOTE: 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0
+// and size of puzzle is hardcoded here
+bool Solver::isSolvable(const Grid& grid)
+{
+    int inversions = 0;
+    size_t size = grid.size() * grid.size();
+
+    bool blankOnOddRowFromBottom;
+
+    for (int linearPos1 = 0; linearPos1 < size; ++linearPos1) {
+        int value1 = grid.at(linearPos1);
+
+        if (value1 == 0) {
+            int x1 = linearPos1 / static_cast<int>(grid.size());
+            blankOnOddRowFromBottom = (x1 % 2 == 1);
+        }
+
+        for (int linearPos2 = linearPos1 + 1; linearPos2 < size; ++linearPos2) {
+            int value2 = grid.at(linearPos2);
+            if (value1 > 0 && value2 > 0) {
+                inversions += static_cast<int>(value1 > value2);
+            }
+        }
+    }
+
+    bool inversionsEven = (inversions % 2 == 0);
+    return (blankOnOddRowFromBottom == inversionsEven);
+}
+
+// This compares distances as
+// distance from start + heuristic distance to end
 bool operator<(const OrderedState& lhs, const OrderedState& rhs) {
-    // this compares distances as
-    // distance from start + heuristic distance to end
     int heuristicDistanceLhs = lhs.distFromStart + lhs.distToEnd;
     int heuristicDistanceRhs = rhs.distFromStart + rhs.distToEnd;
     if (heuristicDistanceLhs != heuristicDistanceRhs) {
@@ -161,18 +188,19 @@ bool operator<(const OrderedState& lhs, const OrderedState& rhs) {
 }
 
 
-ostream& operator<<(ostream& out, const vector<EMove>& path)
+ostream& operator<<(ostream& out, const vector<Movement>& path)
 {
     for (auto& x : path) {
-        if (x == EMove::LEFT) {
+        if (x.direction == EMove::LEFT) {
             out << 'L';
-        } else if (x == EMove::RIGHT) {
+        } else if (x.direction == EMove::RIGHT) {
             out << 'R';
-        } else if (x == EMove::UP) {
+        } else if (x.direction == EMove::UP) {
             out << 'U';
-        } else {
-            assert(x == EMove::DOWN);
+        } else if (x.direction == EMove::DOWN) {
             out << 'D';
+        } else {
+            assert(false && "Direction should be either LEFT, RIGHT, UP or DOWN");
         }
     }
     out << '\n';
