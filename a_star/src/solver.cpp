@@ -25,7 +25,7 @@ Movement movements[] {
 };
 
 void Solver::debugState(const Grid& grid) {
-    cerr << "Estimated: " << estimate(grid, supposedX_, supposedY_) << '\n';
+    cerr << "Estimated: " << estimate(grid) << '\n';
     cerr << "From start: " << dist_[grid] << '\n';
     cerr << '\n';
 }
@@ -33,7 +33,7 @@ void Solver::debugState(const Grid& grid) {
 vector<Movement> Solver::restorePath()
 {
     // restore the path from end to start
-    Grid v = canonical_;
+    Grid v = target_;
 
     vector<Movement> path;
     while (dist_[v]) {
@@ -56,7 +56,7 @@ inline void Solver::relaxState(const Grid& grid, int newDist, Movement newMove, 
     if (notVisited || betterDist) {
         if (!notVisited) {
             // delete old data
-            auto it = stQueue_.lower_bound({dist_[grid], estimate(grid, supposedX_, supposedY_), grid, -1});
+            auto it = stQueue_.lower_bound({dist_[grid], estimate(grid), grid, -1});
             assert(it != stQueue_.end());
             stQueue_.erase(it);
         }
@@ -65,7 +65,7 @@ inline void Solver::relaxState(const Grid& grid, int newDist, Movement newMove, 
         dist_[grid] = newDist;
 
         // insert new data
-        stQueue_.insert({dist_[grid], estimate(grid, supposedX_, supposedY_), grid, newDepth});
+        stQueue_.insert({dist_[grid], estimate(grid), grid, newDepth});
     }
 }
 
@@ -80,40 +80,26 @@ inline void Solver::traverseNeighbours(OrderedState& v)
 
         // move back
         if (hasMoved) {
-            assert(
-                grid.tryMove(-movement.deltaX, -movement.deltaY)
-            );
+            bool hasMovedBack = grid.tryMove(-movement.deltaX, -movement.deltaY);
+            assert(hasMovedBack && "Back move should be valid");
         }
     }
 }
 
-void Solver::prepare(Grid endGrid)
+void Solver::prepare()
 {
     // clear containers
     dist_.clear();
     lastMove_.clear();
     stQueue_ = set<OrderedState>();
-
-    // set new goal
-    canonical_ = endGrid;
-
-    // calc places of values in canonical
-    supposedX_.assign(endGrid.size() * endGrid.size(), 0);
-    supposedY_.assign(endGrid.size() * endGrid.size(), 0);
-    for (size_t i = 0; i < endGrid.size(); ++i) {
-        for (size_t j = 0; j < endGrid.size(); ++j) {
-            supposedX_[endGrid.at(i, j)] = i;
-            supposedY_[endGrid.at(i, j)] = j;
-        }
-    }
 }
 
-vector<Movement> Solver::solve(Grid startGrid, Grid endGrid, bool debug, int depthLimit)
+vector<Movement> Solver::solve(Grid source, bool debug, int depthLimit)
 {
-    prepare(endGrid);
+    prepare();
 
     // push start (direction doesn't matter)
-    relaxState(startGrid, 0, movements[0], 0);
+    relaxState(source, 0, movements[0], 0);
 
     int timer = 0;
     while (!stQueue_.empty()) {
@@ -122,9 +108,10 @@ vector<Movement> Solver::solve(Grid startGrid, Grid endGrid, bool debug, int dep
         stQueue_.erase(stQueue_.begin());
 
         bool hasReachedDepthLimit = (v.depth >= depthLimit);
-        bool hasReachedGoal = (estimate(v.grid, supposedX_, supposedY_) == 0);
+        bool hasReachedGoal = (estimate(v.grid) == 0);
 
         if (hasReachedGoal) {
+            target_ = v.grid;
             break;
         }
         if (hasReachedDepthLimit) {
@@ -179,10 +166,10 @@ bool Solver::isSolvable(const Grid& grid)
 // This compares distances as
 // distance from start + heuristic distance to end
 bool operator<(const OrderedState& lhs, const OrderedState& rhs) {
-    int heuristicDistanceLhs = lhs.distFromStart + lhs.distToEnd;
-    int heuristicDistanceRhs = rhs.distFromStart + rhs.distToEnd;
-    if (heuristicDistanceLhs != heuristicDistanceRhs) {
-        return heuristicDistanceLhs < heuristicDistanceRhs;
+    int lDistance = lhs.distFromStart + lhs.distToEnd;
+    int rDistance = rhs.distFromStart + rhs.distToEnd;
+    if (lDistance != rDistance) {
+        return lDistance < rDistance;
     }
     return lhs.grid < rhs.grid;
 }

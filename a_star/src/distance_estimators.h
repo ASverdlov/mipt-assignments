@@ -11,41 +11,16 @@
 #include "grid.h"
 
 // type of estimate() function
-typedef std::function<int (const Grid&, const std::vector<int>&, const std::vector<int>&)> DistanceEstimator;
+typedef std::function<int (const Grid&)> DistanceEstimator;
 
-int manhattanLAndCDistanceEstimator(const Grid& grid,
-                                    const std::vector<int>& supposedX,
-                                    const std::vector<int>& supposedY
-                                    );
-int linearConflictDistanceEstimator(const Grid& grid,
-                                   const std::vector<int>& supposedX,
-                                   const std::vector<int>& supposedY
-                                   );
-int manhattanDistanceEstimator(const Grid& grid,
-                               const std::vector<int>& supposedX,
-                               const std::vector<int>& supposedY
-                               );
-int misplacedTilesDistanceEstimator(const Grid& grid,
-                               const std::vector<int>& supposedX,
-                               const std::vector<int>& supposedY
-                               );
-int nMaxSwapDistanceEstimator(const Grid& grid,
-                               const std::vector<int>& supposedX,
-                               const std::vector<int>& supposedY
-                               );
-int strange8DistanceEstimator(const Grid& grid,
-                               const std::vector<int>& supposedX,
-                               const std::vector<int>& supposedY
-                               );
-int strange16DistanceEstimator(const Grid& grid,
-                               const std::vector<int>& supposedX,
-                               const std::vector<int>& supposedY
-                               );
-
-int strange32DistanceEstimator(const Grid& grid,
-                               const std::vector<int>& supposedX,
-                               const std::vector<int>& supposedY
-                               );
+int manhattanLAndCDistanceEstimator(const Grid& grid);
+int linearConflictDistanceEstimator(const Grid& grid);
+int manhattanDistanceEstimator(const Grid& grid);
+int misplacedTilesDistanceEstimator(const Grid& grid);
+int nMaxSwapDistanceEstimator(const Grid& grid);
+int strange8DistanceEstimator(const Grid& grid);
+int strange16DistanceEstimator(const Grid& grid);
+int strange32DistanceEstimator(const Grid& grid);
 
 struct DEFunctionHolder
 {

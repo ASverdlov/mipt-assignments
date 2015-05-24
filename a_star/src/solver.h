@@ -37,13 +37,13 @@ struct OrderedState
 class Solver
 {
 public:
-    std::vector<Movement> solve(Grid startGrid, Grid endGrid, bool debug = false, int depthLimit = 60);
-    void setEstimator(DistanceEstimator estimate);
+    std::vector<Movement> solve(Grid source, bool debug = false, int depthLimit = 60);
 
+    void setEstimator(DistanceEstimator estimate);
     static bool isSolvable(const Grid& grid);
 
 private:
-    void prepare(Grid endGrid);
+    void prepare();
 
     void relaxState(const Grid& grid, int newDist, Movement newMove, int newDepth);
     void traverseNeighbours(OrderedState& v);
@@ -53,10 +53,7 @@ private:
 
     DistanceEstimator estimate;
 
-    Grid canonical_;
-
-    std::vector<int> supposedX_;
-    std::vector<int> supposedY_;
+    Grid target_;
 
     std::map<Grid, int> dist_;
     std::map<Grid, Movement> lastMove_;
