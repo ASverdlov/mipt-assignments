@@ -209,21 +209,21 @@ int main()
     // init Solver
     Solver solver;
 
-    int nTests = 2;
+    int nTests = 1;
     for (int test = 1; test <= nTests; ++test) {
         vector<Point> points = generateInput(centers, aroundCenters, sigma1, sigma2, generator);
 
         //cout << "Generated points:\n";
-        for (auto point : points) {
-            cout << point.x << " " << point.y << "\n";
-        }
+        //for (auto point : points) {
+            //cout << point.x << " " << point.y << "\n";
+        //}
 
         vector<Point> cycle = solver.solve(points);
 
         //cout << "Calculated answer:\n";
-        //for (auto point : cycle) {
-            //cout << "(" << point.x << ", " << point.y << ")\n";
-        //}
+        for (auto point : cycle) {
+            cout << point.x << " " << point.y << "\n";
+        }
     }
 
     return 0;
