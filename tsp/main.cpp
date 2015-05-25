@@ -110,10 +110,11 @@ double Solver::getDistance(Point point1, Point point2)
 
 void Solver::traverseTree(int v, int p)
 {
+    cycle.push_back(points[v]);
     for (auto& edge : mst[v]) if (edge.to != p) {
         traverseTree(edge.to, v);
+        cycle.push_back(points[v]);
     }
-    cycle.push_back(points[v]);
 }
 
 vector<Point> Solver::solve(const vector<Point>& points)
@@ -141,19 +142,14 @@ void Solver::getMST()
     }
     sort(edges.begin(), edges.end());
 
-    int nEdges = 0;
-
     mst.assign(points.size(), vector<Edge>());
     for (const auto& edge : edges) {
         bool hasUnited = dsu.uniteSets(edge.from, edge.to);
         if (hasUnited) {
-            ++nEdges;
             mst[edge.from].push_back({edge.from, edge.to, edge.length});
             mst[edge.to].push_back({edge.to, edge.from, edge.length});
         }
     }
-
-    cout << "nEdges: " << nEdges << "\n";
 }
 
 /*************************** Main logic *****************************/
@@ -204,10 +200,10 @@ int main()
     int centers, aroundCenters;
     double sigma1, sigma2;
 
-    centers = 10;
-    aroundCenters = 10;
-    sigma1 = 10.0;
-    sigma2 = 2.0;
+    centers = 50;
+    aroundCenters = 50;
+    sigma1 = 100.0;
+    sigma2 = 10.0;
     //cin >> centers >> aroundCenters >> sigma1 >> sigma2;
 
     // init Solver
@@ -217,17 +213,17 @@ int main()
     for (int test = 1; test <= nTests; ++test) {
         vector<Point> points = generateInput(centers, aroundCenters, sigma1, sigma2, generator);
 
-        cout << "Generated points:\n";
+        //cout << "Generated points:\n";
         for (auto point : points) {
-            cout << "(" << point.x << ", " << point.y << ")\n";
+            cout << point.x << " " << point.y << "\n";
         }
 
         vector<Point> cycle = solver.solve(points);
 
-        cout << "Calculated answer:\n";
-        for (auto point : cycle) {
-            cout << "(" << point.x << ", " << point.y << ")\n";
-        }
+        //cout << "Calculated answer:\n";
+        //for (auto point : cycle) {
+            //cout << "(" << point.x << ", " << point.y << ")\n";
+        //}
     }
 
     return 0;
