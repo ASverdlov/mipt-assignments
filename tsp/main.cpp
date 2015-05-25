@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <algorithm>
 #include <cmath>
+#include <cassert>
 
 #include <chrono>
 #include <limits>
@@ -92,6 +93,9 @@ private:
     void getMST();
     void traverseTree(int v, int p);
 
+    void doKruskal();
+    void doPrim();
+
     vector<Point> cycle;
 
     // minimum spanning tree
@@ -129,6 +133,51 @@ vector<Point> Solver::solve(const vector<Point>& points)
 }
 
 void Solver::getMST()
+{
+    mst.clear();
+    doPrim();
+    //doKruskal();
+}
+
+void Solver::doPrim()
+{
+    static const double INF = 1e15;
+
+    mst.assign(points.size(), vector<Edge>());
+
+    vector<double> minEdge(points.size(), INF);
+    vector<char> visited(points.size(), false);
+    vector<int> parent(points.size(), -1);
+
+    int s = 0;
+    minEdge[s] = 0.0;
+
+    for (int turn = 0; turn < points.size(); ++turn) {
+        int v = -1;
+        for (int u = 0; u < points.size(); ++u) if (!visited[u] && (v == -1 || minEdge[u] < minEdge[v])) {
+            v = u;
+        }
+        assert(v != -1);
+
+        visited[v] = true;
+
+        // add edge
+        if (v != s) {
+            mst[parent[v]].push_back({parent[v], v, getDistance(points[parent[v]], points[v])});
+            mst[v].push_back({v, parent[v], getDistance(points[v], points[parent[v]])});
+        }
+
+        for (int u = 0; u < points.size(); ++u) {
+            double currentEdgeLength = getDistance(points[v], points[u]);
+            if (currentEdgeLength < minEdge[u]) {
+                minEdge[u] = currentEdgeLength;
+                parent[u] = v;
+            }
+        }
+    }
+}
+
+void Solver::doKruskal()
 {
     DSU dsu;
     dsu.initSets(points.size());
