@@ -15,11 +15,11 @@ with open("output.txt") as input_file:
 (x,y) = zip(*DATA)
 
 fig, ax = plt.subplots()
-ax.plot(x, y, marker='o')
+ax.plot(x, y)
 
 for i in range(len(DATA)):
     (x,y) = DATA[i]
-    t = ax.text(x, y, str((x,y)), withdash=True)
+    t = ax.text(x, y, "", withdash=True)
 
 ax.set_xlim((-200.0, 200.0))
 ax.set_ylim((-200.0, 200.0))
