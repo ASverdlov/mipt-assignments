@@ -5,7 +5,8 @@ FILMS
 (
 ID INTEGER PRIMARY KEY AUTOINCREMENT,
 TITLE VARCHAR[30] NOT NULL,
-DESCRIPTION VARCHAR[200] NOT NULL
+DESCRIPTION VARCHAR[200] NOT NULL,
+RATING REAL NOT NULL
 ); 
 
 CREATE TABLE IF NOT EXISTS
@@ -26,3 +27,25 @@ ID_ACTORS INTEGER NOT NULL,
 FOREIGN KEY(ID_FILMS) REFERENCES FILMS(ID),
 FOREIGN KEY(ID_ACTORS) REFERENCES ACTORS(ID)
 );
+
+
+INSERT INTO FILMS(TITLE, DESCRIPTION, RATING) VALUES(
+    "Pitch Perfect 2", 
+    "After a humiliating command performance at Lincoln Center, the Barden Bellas enter an international competition that no American group has ever won in order to regain their status and right to perform.",
+    7.2
+);
+
+INSERT INTO FILMS(TITLE, DESCRIPTION, RATING) VALUES(
+    "Tomorrowland", 
+    "Bound by a shared destiny, a teen bursting with scientific curiosity and a former boy-genius inventor embark on a mission to unearth the secrets of a place somewhere in time and space that exists in their collective memory.",
+    6.9
+);
+
+INSERT INTO FILMS(TITLE, DESCRIPTION, RATING) VALUES(
+    'Mad Max: Fury Road', 
+    'In a stark desert landscape where humanity is broken, two rebels just might be able to restore order: Max, a man of action and of few words, and Furiosa, a woman of action who is looking to make it back to her childhood homeland.',
+    8.7
+);
+
+
+

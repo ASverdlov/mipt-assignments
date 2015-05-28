@@ -55,68 +55,39 @@ void init_table()
 
 void main_loop()
 {
-	static char line[LINE];
-	static char command[LINE];
-	static char instruction[LINE];
-	static char table[LINE];
-	static char *instruction_end;
-	while (fgets(line, LINE, stdin) != NULL) {
-		// читаем команду
+    sqlite3_stmt* stmt;
+    char selectQuery[] = "SELECT * FROM Films WHERE Rating > ?";
+    char *tail;
+    int rc = sqlite3_prepare_v2(db, selectQuery, strlen(selectQuery), &stmt, &tail);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Can't prepare statement: %s\nError: %s\n", selectQuery, sqlite3_errmsg(db));
+        exit(1);
+    }
 
-		printf("1-day-till-deadline> ");
+    double rating;
+    printf("Type min rating: ");
+    scanf("%lf", &rating);
+    printf("\n");
 
-		char *pch = strtok(line, " \t\r\n");
-		if (pch != NULL) {
-			strcpy(command, pch);
-		} else {
-			printf("No command found!");
-			continue;
-		}
+    rc = sqlite3_bind_double(stmt, 1, rating);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Can't bind double in statement: %s, double: %lf\nError: %s\n", selectQuery, rating, sqlite3_errmsg(db));
+        exit(1);
+    }
 
-		if (strcmp(command, "add") == 0 || strcmp(command, "delete") == 0) {
-			pch = strtok(NULL, " \t\r\n");
-			if (pch != NULL) {
-				strcpy(table, pch);
-			} else {
-				printf("No table found!");
-			}
+    for (int j = 0; j < sqlite3_column_count(stmt); ++j) {
+        printf("%14s | ", sqlite3_column_name(stmt, j));
+    }
+    printf("\n");
 
-			pch = strtok(NULL, "");
-			if (pch != NULL) {
-				strcpy(instruction, pch);
-				instruction_end = (char*) instruction + strlen(instruction);
-			} else {
-				printf("No instruction found!");
-			}
+    int res;
+    while ((res = sqlite3_step(stmt)) == SQLITE_ROW) {
+        for (int j = 0; j < sqlite3_column_text(stmt, j); ++j) {
+            printf("%14s | ", sqlite3_column_text(stmt, j));
+        }
+        printf("\n");
+    }
 
-			sqlite3_stmt *stmt;
-			while (instruction < instruction_end) {
-				printf("instruction: %x, instruction_end: %x", instruction, instruction_end);
-				int rc = sqlite3_prepare_v2(db, instruction, instruction_end - instruction, 
-						&stmt, &instruction);
-				if (rc) {
-					fprintf(stderr, "Can't prepare this instruction.\nError: %s", sqlite3_errmsg(db));
-					continue;
-				}
-
-				while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {}
-
-				if (rc != SQLITE_DONE) {
-					printf("rc: %d\n", rc);
-					fprintf(stderr, "Can't do step() on instruction .\nError: %s", sqlite3_errmsg(db));
-					continue;
-				} else {
-					fprintf(stderr, "Everything is OK in step()");
-				}
-
-				rc = sqlite3_finalize(stmt);
-				if (rc != SQLITE_OK) {
-					fprintf(stderr, "Can't do finalize() on instruction.\nError: %s", sqlite3_errmsg(db));
-					continue;
-				}
-			}
-		}
-	}
 }
 
 void create_table(int argc, char **argv)
@@ -135,8 +106,7 @@ void create_table(int argc, char **argv)
 		if (rc != SQLITE_DONE) {
 			printf("rc: %d\n", rc);
 			fprintf(stderr, "\nCan't do step() on statement.\nError: %s", sqlite3_errmsg(db));
-			break;
-			//exit(1);
+			/*break;*/
 		} else {
 			fprintf(stderr, "\nEverything is OK in step()");
 		}
