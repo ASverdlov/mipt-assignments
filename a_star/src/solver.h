@@ -1,5 +1,5 @@
-#ifndef _A_STAR_H_
-#define _A_STAR_H_
+#ifndef _SOLVER_H_
+#define _SOLVER_H_
 
 #include <iostream>
 #include <cstdlib>
@@ -37,31 +37,30 @@ struct OrderedState
 class Solver
 {
 public:
-    std::vector<EMove> solve(Grid startGrid, Grid endGrid, bool debug = false, int depthLimit = 60);
+    std::vector<Movement> solve(Grid source, bool debug = false, int depthLimit = 60);
+
     void setEstimator(DistanceEstimator estimate);
+    static bool isSolvable(const Grid& grid);
 
 private:
-    void prepare(Grid endGrid);
+    void prepare();
 
     void relaxState(const Grid& grid, int newDist, Movement newMove, int newDepth);
     void traverseNeighbours(OrderedState& v);
-    std::vector<EMove> restorePath();
+    std::vector<Movement> restorePath();
 
     void debugState(const Grid& grid);
 
     DistanceEstimator estimate;
 
-    Grid canonical_;
-
-    std::vector<int> supposedX_;
-    std::vector<int> supposedY_;
+    Grid target_;
 
     std::map<Grid, int> dist_;
     std::map<Grid, Movement> lastMove_;
     std::set<OrderedState> stQueue_;
 };
 
-std::ostream& operator<<(std::ostream& out, const std::vector<EMove>& path);
+std::ostream& operator<<(std::ostream& out, const std::vector<Movement>& path);
 
 bool operator<(const OrderedState& lhs, const OrderedState& rhs);
 

@@ -47,6 +47,18 @@ bool Grid::operator<(const Grid& rhs) const
     return grid_ < rhs.grid_; 
 }
 
+int& Grid::at(size_t idx)
+{
+    assert(idx < grid_.size());
+    return grid_[idx];
+}
+
+const int& Grid::at(size_t idx) const
+{
+    assert(idx < grid_.size());
+    return grid_[idx];
+}
+
 int& Grid::at(size_t i, size_t j)
 {
     assert(i * size() + j < grid_.size());
@@ -91,39 +103,4 @@ bool Grid::tryMove(int deltaX, int deltaY)
         return true;
     }
     return false;
-}
-
-bool isSolvable(const Grid& grid)
-{
-    int inversions = 0;
-    size_t size = grid.size() * grid.size();
-
-    bool blankOnOddRowFromBottom;
-
-    for (int linearPos1 = 0; linearPos1 < size; ++linearPos1) {
-        int x1 = linearPos1 / static_cast<int>(grid.size());
-        int y1 = linearPos1 % static_cast<int>(grid.size());
-        int value1 = grid.at(x1, y1);
-
-        if (value1 == 0) {
-            blankOnOddRowFromBottom = (x1 % 2 != 1);
-        }
-
-        for (int linearPos2 = linearPos1 + 1; linearPos2 < size; ++linearPos2) {
-            int x2 = linearPos2 / static_cast<int>(grid.size());
-            int y2 = linearPos2 / static_cast<int>(grid.size());
-            int value2 = grid.at(x2, y2);
-
-            bool isInversion = false;
-            if (grid.at(x1, y1) > 0 && grid.at(x2, y2) > 0) {
-                isInversion = (value1 > value2);
-            } else {
-                isInversion = (value1 == 0);
-            }
-            inversions += isInversion;
-        }
-    }
-
-    bool inversionsEven = (inversions % 2 == 0);
-    return (blankOnOddRowFromBottom == inversionsEven);
 }
