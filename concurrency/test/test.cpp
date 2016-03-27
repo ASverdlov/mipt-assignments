@@ -1,5 +1,4 @@
-
-// <=========== TESTS ==============>
+#include <exception>
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
@@ -12,7 +11,7 @@ futex ftx;
 
 void first() {
     try {
-        ftx.unlock();
+        BOOST_CHECK_THROW(ftx.unlock(), std::logic_error);
     } catch (const std::exception& ex) {
         std::cout << ex.what() << std::endl;
     }
@@ -21,7 +20,9 @@ void first() {
 void second() {
     try {
         std::this_thread::sleep_for(2s);
-        ftx.unlock();
+
+        BOOST_CHECK_THROW(ftx.unlock(), std::logic_error);
+
     } catch (const std::exception& ex) {
         std::cout << ex.what() << std::endl;
     }
